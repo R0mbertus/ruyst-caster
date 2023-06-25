@@ -9,47 +9,44 @@ mod gamestate;
 // piston use
 use glutin_window::GlutinWindow as Window;
 use opengl_graphics::{GlGraphics, OpenGL};
+use piston::{EventLoop, Button, PressEvent};
 use piston::event_loop::{EventSettings, Events};
-use piston::input::{RenderArgs, RenderEvent, UpdateArgs, UpdateEvent};
+use piston::input::{RenderArgs, RenderEvent, UpdateArgs, UpdateEvent, Key};
 use piston::window::WindowSettings;
 
 // project use
-use crate::gamestate::{Gamestate};
+use crate::gamestate::{Gamestate, UpDown, LeftRight};
 
 pub struct App {
     gl: GlGraphics, // OpenGL drawing backend.
-    rotation: f64,  // Rotation for the square.
+    gamestate: Gamestate
 }
 
 impl App {
+    pub fn new() -> App {
+        App { 
+            gl: GlGraphics::new(OpenGL::V3_2),  
+            gamestate: Gamestate::new()
+        }
+    }
+
     fn render(&mut self, args: &RenderArgs) {
         use graphics::*;
 
-        const GREEN: [f32; 4] = [0.0, 0.0, 0.0, 1.0];
-        const RED: [f32; 4] = [1.0, 0.0, 0.0, 1.0];
-
-        let square = rectangle::square(0.0, 0.0, 50.0);
-        let rotation = self.rotation;
-        let (x, y) = (args.window_size[0] / 2.0, args.window_size[1] / 2.0);
+        const BLACK: [f32; 4] = [0.0, 0.0, 0.0, 1.0];
 
         self.gl.draw(args.viewport(), |c, gl| {
             // Clear the screen.
-            clear(GREEN, gl);
-
-            let transform = c
-                .transform
-                .trans(x, y)
-                .rot_rad(rotation)
-                .trans(-25.0, -25.0);
-
-            // Draw a box rotating around the middle of the screen.
-            rectangle(RED, square, transform, gl);
+            clear(BLACK, gl);
         });
     }
 
+    fn handle_key_press(&mut self, key: Key) {
+
+    }
+
     fn update(&mut self, args: &UpdateArgs) {
-        // Rotate 2 radians per second.
-        self.rotation += 2.0 * args.dt;
+        // nothing right now
     }
 }
 
@@ -65,15 +62,16 @@ fn main() {
         .unwrap();
 
     // Create a new game and run it.
-    let mut app = App {
-        gl: GlGraphics::new(opengl),
-        rotation: 0.0,
-    };
+    let mut app = App::new();
 
-    let mut events = Events::new(EventSettings::new());
+    let mut events = Events::new(EventSettings::new().max_fps(30));
     while let Some(e) = events.next(&mut window) {
         if let Some(args) = e.render_args() {
             app.render(&args);
+        }
+
+        if let Some(Button::Keyboard(key)) = e.press_args() {
+            app.handle_key_press(key);
         }
 
         if let Some(args) = e.update_args() {

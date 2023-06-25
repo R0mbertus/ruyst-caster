@@ -1,6 +1,6 @@
-use crate::map::wall_point;
+use crate::map::*;
 
-const STEP_SIZE: f32 = 0.05;
+const STEP_SIZE: f64 = 0.02;
 
 pub enum UpDown {
     Up,
@@ -15,9 +15,9 @@ pub enum LeftRight {
 }
 
 pub struct Gamestate {
-    x: f32,
-    y: f32,
-    angle: f32,
+    x: f64,
+    y: f64,
+    angle: f64,
     up_down: UpDown,
     left_right: LeftRight,
 }
@@ -34,15 +34,23 @@ impl Gamestate {
     }
 
     // try to eventually find a generic for these two
-    pub fn setUpDown(&mut self, up_down: UpDown) {
+    pub fn set_up_down(&mut self, up_down: UpDown) {
         self.up_down = up_down;
     }
 
-    pub fn setLeftRight(&mut self, left_right: LeftRight) {
+    pub fn set_left_right(&mut self, left_right: LeftRight) {
         self.left_right = left_right;
     }
 
+    pub fn get_player_pos(&mut self, block_size: (f64, f64)) -> (f64, f64) {
+        (self.x as f64 * block_size.1, self.y as f64 * block_size.0)
+    }
+
     pub fn update(&mut self) {
+        self.move_player();
+    }
+
+    fn move_player(&mut self) {
         let previous_position = (self.x, self.y);
 
         match self.up_down {
@@ -66,7 +74,5 @@ impl Gamestate {
         if wall_point(self.x as usize, self.y as usize) {
             (self.x, self.y) = previous_position
         }
-
-        (self.up_down, self.left_right) = (UpDown::None, LeftRight::None);
     }
 }

@@ -7,7 +7,7 @@ pub enum UpDown {
     Down,
     None
 }
-    
+  
 pub enum LeftRight {
     Left,
     Right,
@@ -31,6 +31,15 @@ impl Gamestate {
             up_down: UpDown::None, 
             left_right: LeftRight::None
         }
+    }
+
+    // try to eventually find a generic for these two
+    pub fn setUpDown(&mut self, up_down: UpDown) {
+        self.up_down = up_down;
+    }
+
+    pub fn setLeftRight(&mut self, left_right: LeftRight) {
+        self.left_right = left_right;
     }
 
     pub fn update(&mut self) {
@@ -57,5 +66,7 @@ impl Gamestate {
         if wall_point(self.x as usize, self.y as usize) {
             (self.x, self.y) = previous_position
         }
+
+        (self.up_down, self.left_right) = (UpDown::None, LeftRight::None);
     }
 }

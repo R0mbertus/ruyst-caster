@@ -15,7 +15,7 @@ use piston::input::{RenderArgs, RenderEvent, UpdateArgs, UpdateEvent, Key};
 use piston::window::WindowSettings;
 
 // project use
-use crate::gamestate::{Gamestate, UpDown, LeftRight};
+use crate::gamestate::*;
 
 pub struct App {
     gl: GlGraphics, // OpenGL drawing backend.
@@ -42,11 +42,17 @@ impl App {
     }
 
     fn handle_key_press(&mut self, key: Key) {
-
+        match key {
+            Key::W => self.gamestate.setUpDown(UpDown::Up),
+            Key::S => self.gamestate.setUpDown(UpDown::Down),
+            Key::A => self.gamestate.setLeftRight(LeftRight::Left),
+            Key::D => self.gamestate.setLeftRight(LeftRight::Right),
+            _ => ()
+        }
     }
 
     fn update(&mut self, args: &UpdateArgs) {
-        // nothing right now
+        self.gamestate.update();
     }
 }
 

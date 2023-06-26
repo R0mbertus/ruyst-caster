@@ -32,7 +32,7 @@ impl App {
         App { 
             gl: GlGraphics::new(OpenGL::V3_2),  
             gamestate: Gamestate::new(),
-            block_size: map::block_size(WINDOW_HEIGHT, WINDOW_WIDTH)
+            block_size: map::block_size(WINDOW_WIDTH, WINDOW_HEIGHT)
         }
     }
 
@@ -50,20 +50,20 @@ impl App {
                 for x in 0..map::WIDTH {
                     if map::wall_point(x, y) {
                         Rectangle::new(WHITE).draw(
-                            [0.0, 0.0, self.block_size.1, self.block_size.0], 
+                            [0.0, 0.0, self.block_size.0, self.block_size.1], 
                             &DrawState::default(), 
-                            c.transform.trans(x as f64 * self.block_size.1, y as f64 * self.block_size.0), 
+                            c.transform.trans(x as f64 * self.block_size.0, y as f64 * self.block_size.1), 
                             gl
                         );
                     }
                 }
             }
 
-            let player_pos: (f64, f64) = self.gamestate.get_player_pos(self.block_size);
+            let player_pos: (f64, f64) = self.gamestate.get_player_pos();
             Rectangle::new(GREEN).draw(
-                [0.0, 0.0, self.block_size.1, self.block_size.0], 
+                [0.0, 0.0, self.block_size.0 / 2.0, self.block_size.1 / 2.0], 
                 &DrawState::default(), 
-                c.transform.trans(player_pos.1, player_pos.0), 
+                c.transform.trans(player_pos.0 * self.block_size.0, player_pos.1 * self.block_size.1), 
                 gl
             );
         });

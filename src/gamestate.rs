@@ -42,8 +42,8 @@ impl Gamestate {
         self.left_right = left_right;
     }
 
-    pub fn get_player_pos(&mut self, block_size: (f64, f64)) -> (f64, f64) {
-        (self.x as f64 * block_size.1, self.y as f64 * block_size.0)
+    pub fn get_player_pos(&mut self) -> (f64, f64) {
+        (self.x as f64, self.y as f64)
     }
 
     pub fn update(&mut self) {
@@ -71,7 +71,7 @@ impl Gamestate {
             LeftRight::None => (),
         }
 
-        if wall_point(self.x as usize, self.y as usize) {
+        if wall_point(self.x.floor() as usize, self.y.floor() as usize) {
             (self.x, self.y) = previous_position
         }
     }

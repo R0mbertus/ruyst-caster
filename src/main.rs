@@ -71,18 +71,21 @@ impl App {
 
     fn handle_key_press(&mut self, key: Key) {
         match key {
-            Key::W => self.gamestate.set_up_down(UpDown::Up),
-            Key::S => self.gamestate.set_up_down(UpDown::Down),
-            Key::A => self.gamestate.set_left_right(LeftRight::Left),
-            Key::D => self.gamestate.set_left_right(LeftRight::Right),
+            Key::W => self.gamestate.up_down = UpDown::Up,
+            Key::S => self.gamestate.up_down = UpDown::Down,
+            Key::A => self.gamestate.left_right = LeftRight::Left,
+            Key::D => self.gamestate.left_right = LeftRight::Right,
             _ => ()
         }
     }
 
     fn handle_key_release(&mut self, key: Key) {
+        // kind of ugly but needed for handling opposite key pressed
         match key {
-            Key::W | Key::S => self.gamestate.set_up_down(UpDown::None),
-            Key::A | Key::D => self.gamestate.set_left_right(LeftRight::None),
+            Key::W if self.gamestate.up_down != UpDown::Down => self.gamestate.up_down = UpDown::None,
+            Key::S if self.gamestate.up_down != UpDown::Up => self.gamestate.up_down = UpDown::None,
+            Key::A if self.gamestate.left_right != LeftRight::Right => self.gamestate.left_right = LeftRight::None,
+            Key::D if self.gamestate.left_right != LeftRight::Left => self.gamestate.left_right = LeftRight::None,
             _ => ()
         }
     }

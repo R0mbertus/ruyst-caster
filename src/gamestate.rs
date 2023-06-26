@@ -2,12 +2,14 @@ use crate::map::*;
 
 const STEP_SIZE: f64 = 0.02;
 
+#[derive(PartialEq)]
 pub enum UpDown {
     Up,
     Down,
     None
 }
-  
+
+#[derive(PartialEq)]
 pub enum LeftRight {
     Left,
     Right,
@@ -18,8 +20,8 @@ pub struct Gamestate {
     x: f64,
     y: f64,
     angle: f64,
-    up_down: UpDown,
-    left_right: LeftRight,
+    pub up_down: UpDown,
+    pub left_right: LeftRight,
 }
 
 impl Gamestate {
@@ -31,15 +33,6 @@ impl Gamestate {
             up_down: UpDown::None, 
             left_right: LeftRight::None
         }
-    }
-
-    // try to eventually find a generic for these two
-    pub fn set_up_down(&mut self, up_down: UpDown) {
-        self.up_down = up_down;
-    }
-
-    pub fn set_left_right(&mut self, left_right: LeftRight) {
-        self.left_right = left_right;
     }
 
     pub fn get_player_pos(&mut self) -> (f64, f64) {

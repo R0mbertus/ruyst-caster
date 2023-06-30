@@ -18,14 +18,14 @@ use piston::{Button, EventLoop, PressEvent, ReleaseEvent};
 
 // project use
 use crate::gamestate::*;
-use crate::map::*;
+use crate::raycaster::*;
 
 // constants
 const WINDOW_HEIGHT: f64 = 600.0;
 const WINDOW_WIDTH: f64 = 800.0;
 const HALF_WINDOW_HEIGHT: f64 = WINDOW_HEIGHT / 2.0;
 const HALF_WINDOW_WIDTH: f64 = WINDOW_WIDTH / 2.0;
-const PRECISION: usize = 64;
+const PRECISION: f64 = 64.0;
 
 pub struct App {
     gl: GlGraphics, // OpenGL drawing backend.
@@ -42,41 +42,27 @@ impl App {
         }
     }
 
-    fn render_2d(&mut self, args: &RenderArgs) {
+    fn render(&mut self, args: &RenderArgs) {
         use graphics::*;
 
         self.gl.draw(args.viewport(), |c, gl| {
             // Clear the screen.
             clear(BLACK, gl);
-            for y in 0..map::HEIGHT {
-                for x in 0..map::WIDTH {
-                    if map::wall_point(x, y) {
-                        Rectangle::new(WHITE).draw(
-                            [0.0, 0.0, self.block_size.0, self.block_size.1],
-                            &DrawState::default(),
-                            c.transform
-                                .trans(x as f64 * self.block_size.0, y as f64 * self.block_size.1),
-                            gl,
-                        );
-                    }
-                }
+            
+            for (ray, wall_height) in self.gamestate.get_view().iter().enumerate() {
+                Line::new(GREEN, 1.0).draw(
+                    [
+                        ray as f64, 
+                        HALF_WINDOW_HEIGHT - wall_height / 2.0,
+                        ray as f64,
+                        HALF_WINDOW_HEIGHT + wall_height / 2.0
+                    ],
+                    &DrawState::default(),
+                    c.transform, 
+                    gl
+                );
             }
-
-            let player_pos: (f64, f64) = self.gamestate.get_player_pos();
-            Rectangle::new(GREEN).draw(
-                [0.0, 0.0, self.block_size.0 / 4.0, self.block_size.1 / 4.0],
-                &DrawState::default(),
-                c.transform.trans(
-                    player_pos.0 * self.block_size.0,
-                    player_pos.1 * self.block_size.1,
-                ),
-                gl,
-            );
         });
-    }
-
-    fn render(&mut self, args: &RenderArgs) {
-        self.render_2d(args);
     }
 
     fn handle_key_press(&mut self, key: Key) {

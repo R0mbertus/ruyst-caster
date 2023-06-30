@@ -21,10 +21,15 @@ const MAP: [[u8; WIDTH]; HEIGHT] = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 ];
 
-pub fn wall_point(x: usize, y: usize) -> bool {
-    match MAP.get(y) {
-        Some(row) => *row.get(x).unwrap() != 0,
-        None => false,
+pub fn wall_point(x: f64, y: f64) -> bool {
+    match MAP.get(y as usize) {
+        Some(row) => {
+            match row.get(x as usize) {
+                Some(wall) => *wall != 0,
+                None => true
+            }
+        },
+        None => true,
     }
 }
 

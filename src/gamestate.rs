@@ -1,6 +1,7 @@
-use crate::{map::*, WINDOW_WIDTH};
+use crate::{map::*, WINDOW_WIDTH, raycaster::*};
 
-const STEP_SIZE: f64 = 0.02;
+const STEP_SIZE: f64 = 0.035;
+const ROTATION: f64 = 1.5;
 
 #[derive(PartialEq)]
 pub enum UpDown {
@@ -35,6 +36,11 @@ impl Gamestate {
         }
     }
 
+    // smell, I know.
+    pub fn get_view(&mut self) -> [f64; WINDOW_WIDTH as usize] {
+        raycaster(self.x, self.y, self.angle)
+    }
+
     pub fn get_player_pos(&mut self) -> (f64, f64) {
         (self.x as f64, self.y as f64)
     }
@@ -48,23 +54,23 @@ impl Gamestate {
 
         match self.up_down {
             UpDown::Up => {
-                self.x += self.angle.cos() * STEP_SIZE;
-                self.y += -self.angle.sin() * STEP_SIZE;
+                self.x += degree_to_radians(self.angle).cos() * STEP_SIZE;
+                self.y += degree_to_radians(self.angle).sin() * STEP_SIZE;
             }
             UpDown::Down => {
-                self.x -= self.angle.cos() * STEP_SIZE;
-                self.y -= -self.angle.sin() * STEP_SIZE;
+                self.x -= degree_to_radians(self.angle).cos() * STEP_SIZE;
+                self.y -= degree_to_radians(self.angle).sin() * STEP_SIZE;
             }
             UpDown::None => (),
         }
 
         match self.left_right {
-            LeftRight::Left => self.angle += STEP_SIZE,
-            LeftRight::Right => self.angle -= STEP_SIZE,
+            LeftRight::Left => self.angle -= ROTATION,
+            LeftRight::Right => self.angle += ROTATION,
             LeftRight::None => (),
         }
 
-        if wall_point(self.x.floor() as usize, self.y.floor() as usize) {
+        if wall_point(self.x, self.y) {
             (self.x, self.y) = previous_position
         }
     }

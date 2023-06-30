@@ -18,15 +18,15 @@ This is a rough roadmap of what I'm planning to do in this project. Do note the
 *rought* part as the further along the list goes, the more likely it is to be
 subject to change.
 
-[x] - Project setup
-[x] - Simple barebones raycaster
-    [x] - Fix fisheye problem
-[ ] - DDA raycaster
-    [ ] - Distance shadows
-    [ ] - floor and sky colors
-[ ] - Wall textures
-    [ ] - floor and sky textures
-[ ] - ???
+- [x] Project setup
+- [x] Simple barebones raycaster
+    - [x] Fix fisheye problem
+- [ ] DDA raycaster
+    - [ ] Distance shadows
+    - [ ] floor and sky colors
+- [ ] Wall textures
+    - [ ] floor and sky textures
+- [ ] *future stuff...*
 
 ## Feedback
 I'm very much still a novice in Rust and I'd say programming in general, so any

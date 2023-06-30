@@ -9,7 +9,7 @@ mod raycaster;
 
 // piston use
 use glutin_window::GlutinWindow as Window;
-use graphics::color::{BLACK, GREEN, WHITE};
+use graphics::color::{BLACK, GREEN};
 use opengl_graphics::{GlGraphics, OpenGL};
 use piston::event_loop::{EventSettings, Events};
 use piston::input::{Key, RenderArgs, RenderEvent, UpdateArgs, UpdateEvent};
@@ -18,19 +18,22 @@ use piston::{Button, EventLoop, PressEvent, ReleaseEvent};
 
 // project use
 use crate::gamestate::*;
-use crate::raycaster::*;
 
 // constants
 const WINDOW_HEIGHT: f64 = 600.0;
 const WINDOW_WIDTH: f64 = 800.0;
 const HALF_WINDOW_HEIGHT: f64 = WINDOW_HEIGHT / 2.0;
-const HALF_WINDOW_WIDTH: f64 = WINDOW_WIDTH / 2.0;
 const PRECISION: f64 = 64.0;
 
 pub struct App {
     gl: GlGraphics, // OpenGL drawing backend.
     gamestate: Gamestate,
-    block_size: (f64, f64),
+}
+
+impl Default for App {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl App {
@@ -38,7 +41,6 @@ impl App {
         App {
             gl: GlGraphics::new(OpenGL::V3_2),
             gamestate: Gamestate::new(),
-            block_size: map::block_size(WINDOW_WIDTH, WINDOW_HEIGHT),
         }
     }
 
@@ -48,18 +50,18 @@ impl App {
         self.gl.draw(args.viewport(), |c, gl| {
             // Clear the screen.
             clear(BLACK, gl);
-            
+
             for (ray, wall_height) in self.gamestate.get_view().iter().enumerate() {
                 Line::new(GREEN, 1.0).draw(
                     [
-                        ray as f64, 
+                        ray as f64,
                         HALF_WINDOW_HEIGHT - wall_height / 2.0,
                         ray as f64,
-                        HALF_WINDOW_HEIGHT + wall_height / 2.0
+                        HALF_WINDOW_HEIGHT + wall_height / 2.0,
                     ],
                     &DrawState::default(),
-                    c.transform, 
-                    gl
+                    c.transform,
+                    gl,
                 );
             }
         });
@@ -92,7 +94,7 @@ impl App {
         }
     }
 
-    fn update(&mut self, args: &UpdateArgs) {
+    fn update(&mut self, _args: &UpdateArgs) {
         self.gamestate.update();
     }
 }

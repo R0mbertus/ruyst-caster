@@ -1,6 +1,6 @@
 use std::f64::consts::PI;
 
-use crate::{WINDOW_WIDTH, PRECISION, map::wall_point, HALF_WINDOW_HEIGHT};
+use crate::{map::wall_point, HALF_WINDOW_HEIGHT, PRECISION, WINDOW_WIDTH};
 
 const FOV: f64 = 60.0;
 const HALF_FOV: f64 = FOV / 2.0;
@@ -31,7 +31,8 @@ pub fn raycaster(x: f64, y: f64, player_angle: f64) -> [f64; WINDOW_WIDTH as usi
             ray_y += ray_sin;
         }
 
-        let distance = distance(x - ray_x, y - ray_y) * degree_to_radians(ray_angle - player_angle).cos();
+        let distance =
+            distance(x - ray_x, y - ray_y) * degree_to_radians(ray_angle - player_angle).cos();
 
         *wall_height = HALF_WINDOW_HEIGHT / distance;
 

@@ -1,4 +1,4 @@
-use crate::{map::*, WINDOW_WIDTH, raycaster::*};
+use crate::{map::*, raycaster::*, WINDOW_WIDTH};
 
 const STEP_SIZE: f64 = 0.035;
 const ROTATION: f64 = 1.5;
@@ -39,10 +39,6 @@ impl Gamestate {
     // smell, I know.
     pub fn get_view(&mut self) -> [f64; WINDOW_WIDTH as usize] {
         raycaster(self.x, self.y, self.angle)
-    }
-
-    pub fn get_player_pos(&mut self) -> (f64, f64) {
-        (self.x as f64, self.y as f64)
     }
 
     pub fn update(&mut self) {

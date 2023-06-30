@@ -23,16 +23,10 @@ const MAP: [[u8; WIDTH]; HEIGHT] = [
 
 pub fn wall_point(x: f64, y: f64) -> bool {
     match MAP.get(y as usize) {
-        Some(row) => {
-            match row.get(x as usize) {
-                Some(wall) => *wall != 0,
-                None => true
-            }
+        Some(row) => match row.get(x as usize) {
+            Some(wall) => *wall != 0,
+            None => true,
         },
         None => true,
     }
-}
-
-pub fn block_size(width: f64, height: f64) -> (f64, f64) {
-    (width / (WIDTH as f64), height / (HEIGHT as f64))
 }

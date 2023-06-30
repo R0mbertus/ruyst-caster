@@ -1,4 +1,4 @@
-use crate::map::*;
+use crate::{map::*, WINDOW_WIDTH};
 
 const STEP_SIZE: f64 = 0.02;
 
@@ -6,14 +6,14 @@ const STEP_SIZE: f64 = 0.02;
 pub enum UpDown {
     Up,
     Down,
-    None
+    None,
 }
 
 #[derive(PartialEq)]
 pub enum LeftRight {
     Left,
     Right,
-    None
+    None,
 }
 
 pub struct Gamestate {
@@ -26,12 +26,12 @@ pub struct Gamestate {
 
 impl Gamestate {
     pub fn new() -> Gamestate {
-        Gamestate { 
-            x: 4.0, 
-            y: 4.0, 
-            angle: 0.0, 
-            up_down: UpDown::None, 
-            left_right: LeftRight::None
+        Gamestate {
+            x: 4.0,
+            y: 4.0,
+            angle: 0.0,
+            up_down: UpDown::None,
+            left_right: LeftRight::None,
         }
     }
 
@@ -50,11 +50,11 @@ impl Gamestate {
             UpDown::Up => {
                 self.x += self.angle.cos() * STEP_SIZE;
                 self.y += -self.angle.sin() * STEP_SIZE;
-            },
+            }
             UpDown::Down => {
                 self.x -= self.angle.cos() * STEP_SIZE;
                 self.y -= -self.angle.sin() * STEP_SIZE;
-            },
+            }
             UpDown::None => (),
         }
 

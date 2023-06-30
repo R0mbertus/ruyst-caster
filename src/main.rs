@@ -3,45 +3,47 @@ extern crate graphics;
 extern crate opengl_graphics;
 extern crate piston;
 
-mod map;
 mod gamestate;
+mod map;
+mod raycaster;
 
 // piston use
 use glutin_window::GlutinWindow as Window;
+use graphics::color::{BLACK, GREEN, WHITE};
 use opengl_graphics::{GlGraphics, OpenGL};
-use piston::{EventLoop, Button, PressEvent, ReleaseEvent};
 use piston::event_loop::{EventSettings, Events};
-use piston::input::{RenderArgs, RenderEvent, UpdateArgs, UpdateEvent, Key};
+use piston::input::{Key, RenderArgs, RenderEvent, UpdateArgs, UpdateEvent};
 use piston::window::WindowSettings;
+use piston::{Button, EventLoop, PressEvent, ReleaseEvent};
 
 // project use
-use crate::map::*;
 use crate::gamestate::*;
+use crate::map::*;
 
+// constants
 const WINDOW_HEIGHT: f64 = 600.0;
 const WINDOW_WIDTH: f64 = 800.0;
+const HALF_WINDOW_HEIGHT: f64 = WINDOW_HEIGHT / 2.0;
+const HALF_WINDOW_WIDTH: f64 = WINDOW_WIDTH / 2.0;
+const PRECISION: usize = 64;
 
 pub struct App {
     gl: GlGraphics, // OpenGL drawing backend.
     gamestate: Gamestate,
-    block_size: (f64, f64)
+    block_size: (f64, f64),
 }
 
 impl App {
     pub fn new() -> App {
-        App { 
-            gl: GlGraphics::new(OpenGL::V3_2),  
+        App {
+            gl: GlGraphics::new(OpenGL::V3_2),
             gamestate: Gamestate::new(),
-            block_size: map::block_size(WINDOW_WIDTH, WINDOW_HEIGHT)
+            block_size: map::block_size(WINDOW_WIDTH, WINDOW_HEIGHT),
         }
     }
 
-    fn render(&mut self, args: &RenderArgs) {
+    fn render_2d(&mut self, args: &RenderArgs) {
         use graphics::*;
-
-        const BLACK: [f32; 4] = [0.0, 0.0, 0.0, 1.0];
-        const WHITE: [f32; 4] = [1.0, 1.0, 1.0, 1.0];
-        const GREEN: [f32; 4] = [0.0, 1.0, 0.0, 1.0];
 
         self.gl.draw(args.viewport(), |c, gl| {
             // Clear the screen.
@@ -50,10 +52,11 @@ impl App {
                 for x in 0..map::WIDTH {
                     if map::wall_point(x, y) {
                         Rectangle::new(WHITE).draw(
-                            [0.0, 0.0, self.block_size.0, self.block_size.1], 
-                            &DrawState::default(), 
-                            c.transform.trans(x as f64 * self.block_size.0, y as f64 * self.block_size.1), 
-                            gl
+                            [0.0, 0.0, self.block_size.0, self.block_size.1],
+                            &DrawState::default(),
+                            c.transform
+                                .trans(x as f64 * self.block_size.0, y as f64 * self.block_size.1),
+                            gl,
                         );
                     }
                 }
@@ -61,12 +64,19 @@ impl App {
 
             let player_pos: (f64, f64) = self.gamestate.get_player_pos();
             Rectangle::new(GREEN).draw(
-                [0.0, 0.0, self.block_size.0 / 2.0, self.block_size.1 / 2.0], 
-                &DrawState::default(), 
-                c.transform.trans(player_pos.0 * self.block_size.0, player_pos.1 * self.block_size.1), 
-                gl
+                [0.0, 0.0, self.block_size.0 / 4.0, self.block_size.1 / 4.0],
+                &DrawState::default(),
+                c.transform.trans(
+                    player_pos.0 * self.block_size.0,
+                    player_pos.1 * self.block_size.1,
+                ),
+                gl,
             );
         });
+    }
+
+    fn render(&mut self, args: &RenderArgs) {
+        self.render_2d(args);
     }
 
     fn handle_key_press(&mut self, key: Key) {
@@ -75,18 +85,24 @@ impl App {
             Key::S => self.gamestate.up_down = UpDown::Down,
             Key::A => self.gamestate.left_right = LeftRight::Left,
             Key::D => self.gamestate.left_right = LeftRight::Right,
-            _ => ()
+            _ => (),
         }
     }
 
     fn handle_key_release(&mut self, key: Key) {
         // kind of ugly but needed for handling opposite key pressed
         match key {
-            Key::W if self.gamestate.up_down != UpDown::Down => self.gamestate.up_down = UpDown::None,
+            Key::W if self.gamestate.up_down != UpDown::Down => {
+                self.gamestate.up_down = UpDown::None
+            }
             Key::S if self.gamestate.up_down != UpDown::Up => self.gamestate.up_down = UpDown::None,
-            Key::A if self.gamestate.left_right != LeftRight::Right => self.gamestate.left_right = LeftRight::None,
-            Key::D if self.gamestate.left_right != LeftRight::Left => self.gamestate.left_right = LeftRight::None,
-            _ => ()
+            Key::A if self.gamestate.left_right != LeftRight::Right => {
+                self.gamestate.left_right = LeftRight::None
+            }
+            Key::D if self.gamestate.left_right != LeftRight::Left => {
+                self.gamestate.left_right = LeftRight::None
+            }
+            _ => (),
         }
     }
 

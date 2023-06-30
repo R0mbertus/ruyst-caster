@@ -31,7 +31,7 @@ pub fn raycaster(x: f64, y: f64, player_angle: f64) -> [f64; WINDOW_WIDTH as usi
             ray_y += ray_sin;
         }
 
-        let distance = distance(x - ray_x, y - ray_y);
+        let distance = distance(x - ray_x, y - ray_y) * degree_to_radians(ray_angle - player_angle).cos();
 
         *wall_height = HALF_WINDOW_HEIGHT / distance;
 

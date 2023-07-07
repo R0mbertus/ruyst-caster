@@ -4,7 +4,8 @@ use crate::{map::wall_point, HALF_WINDOW_HEIGHT, PRECISION, WINDOW_WIDTH};
 
 const FOV: f64 = 60.0;
 const HALF_FOV: f64 = FOV / 2.0;
-const RAY_ANGLE_INCREMENT: f64 = FOV / WINDOW_WIDTH;
+const RAYS_AMOUNT: usize = WINDOW_WIDTH as usize;
+const RAY_ANGLE_INCREMENT: f64 = FOV / RAYS_AMOUNT as f64;
 
 pub fn degree_to_radians(degree: f64) -> f64 {
     degree * (PI / 180.0)
@@ -14,10 +15,10 @@ fn distance(x: f64, y: f64) -> f64 {
     ((x * x) + (y * y)).sqrt()
 }
 
-pub fn raycaster(x: f64, y: f64, player_angle: f64) -> [f64; WINDOW_WIDTH as usize] {
+pub fn raycaster(x: f64, y: f64, player_angle: f64) -> [f64; RAYS_AMOUNT as usize] {
     let mut ray_angle: f64 = player_angle - HALF_FOV;
 
-    let mut rays = [0.0; WINDOW_WIDTH as usize];
+    let mut rays = [0.0; RAYS_AMOUNT as usize];
 
     for (_ray, wall_height) in rays.iter_mut().enumerate() {
         let mut ray_x: f64 = x;

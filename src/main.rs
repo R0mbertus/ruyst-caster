@@ -9,12 +9,14 @@ mod raycaster;
 
 // piston use
 use glutin_window::GlutinWindow as Window;
-use graphics::color::{BLACK, GREEN};
+use graphics::color::{GREEN, RED};
 use opengl_graphics::{GlGraphics, OpenGL};
 use piston::event_loop::{EventSettings, Events};
 use piston::input::{Key, RenderArgs, RenderEvent, UpdateArgs, UpdateEvent};
 use piston::window::WindowSettings;
 use piston::{Button, EventLoop, PressEvent, ReleaseEvent};
+
+const SKY_BLUE: [f32; 4] = [0.40, 0.7, 0.95, 1.0];
 
 // project use
 use crate::gamestate::*;
@@ -49,10 +51,23 @@ impl App {
 
         self.gl.draw(args.viewport(), |c, gl| {
             // Clear the screen.
-            clear(BLACK, gl);
+            clear(GREEN, gl);
+
+            // Draw sky
+            Rectangle::new(SKY_BLUE).draw(
+                [
+                    0.0,
+                    0.0,
+                    WINDOW_WIDTH,
+                    HALF_WINDOW_HEIGHT
+                ],
+                &DrawState::default(),
+                c.transform,
+                gl
+            );
 
             for (ray, wall_height) in self.gamestate.get_view().iter().enumerate() {
-                Line::new(GREEN, 1.0).draw(
+                Line::new(RED, 3.0).draw(
                     [
                         ray as f64,
                         HALF_WINDOW_HEIGHT - wall_height / 2.0,
@@ -104,11 +119,13 @@ fn main() {
     let opengl = OpenGL::V3_2;
 
     // Create a Glutin window.
-    let mut window: Window = WindowSettings::new("spinning-square", [WINDOW_WIDTH, WINDOW_HEIGHT])
+    let mut window: Window = WindowSettings::new("ruyst-caster", [WINDOW_WIDTH - 20.0, WINDOW_HEIGHT])
         .graphics_api(opengl)
         .exit_on_esc(true)
         .build()
         .unwrap();
+
+    println!("({},{})", WINDOW_WIDTH, WINDOW_HEIGHT);
 
     // Create a new game and run it.
     let mut app = App::new();

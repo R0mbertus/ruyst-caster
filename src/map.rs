@@ -1,5 +1,6 @@
 pub const WIDTH: usize = 16;
 pub const HEIGHT: usize = 16;
+const SHADOW_DISTANCE: f32 = 6.0;
 
 // constant map for now
 const MAP: [[u8; WIDTH]; HEIGHT] = [
@@ -29,4 +30,17 @@ pub fn wall_point(x: f64, y: f64) -> bool {
         },
         None => true,
     }
+}
+
+pub fn color_distance(color: [f32; 4], distance: f32) -> [f32; 4] {
+    // If distance not far enough just keep color
+    if distance < SHADOW_DISTANCE {
+        return color;
+    }
+
+    let mut color_dist = color;
+    for i in 0..3 {
+        color_dist[i] /= distance - SHADOW_DISTANCE;
+    }
+    color_dist
 }

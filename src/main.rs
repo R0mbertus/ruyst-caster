@@ -20,12 +20,15 @@ const SKY_BLUE: [f32; 4] = [0.40, 0.7, 0.95, 1.0];
 
 // project use
 use crate::gamestate::*;
+use crate::map::*;
+use crate::raycaster::RAYS_AMOUNT;
 
 // constants
 const WINDOW_HEIGHT: f64 = 600.0;
 const WINDOW_WIDTH: f64 = 800.0;
 const HALF_WINDOW_HEIGHT: f64 = WINDOW_HEIGHT / 2.0;
 const PRECISION: f64 = 64.0;
+const LINE_WIDTH: f64 = WINDOW_WIDTH / RAYS_AMOUNT as f64;
 
 pub struct App {
     gl: GlGraphics, // OpenGL drawing backend.
@@ -66,13 +69,13 @@ impl App {
                 gl
             );
 
-            for (ray, wall_height) in self.gamestate.get_view().iter().enumerate() {
-                Line::new(RED, 3.0).draw(
+            for (ray, distance) in self.gamestate.get_view().iter().enumerate() {
+                Line::new(color_distance(RED, *distance as f32), LINE_WIDTH).draw(
                     [
                         ray as f64,
-                        HALF_WINDOW_HEIGHT - wall_height / 2.0,
+                        HALF_WINDOW_HEIGHT - (HALF_WINDOW_HEIGHT / distance) / 2.0,
                         ray as f64,
-                        HALF_WINDOW_HEIGHT + wall_height / 2.0,
+                        HALF_WINDOW_HEIGHT + (HALF_WINDOW_HEIGHT / distance) / 2.0,
                     ],
                     &DrawState::default(),
                     c.transform,

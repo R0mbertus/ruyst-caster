@@ -21,12 +21,12 @@ subject to change.
 - [x] Project setup
 - [x] Simple barebones raycaster
     - [x] Fix fisheye problem
-    - [x] floor and sky colors
+    - [x] Floor and sky colors
+    - [x] Shadows for distance
 - [ ] Wall textures
     - [ ] Floor casting and textures
     - [ ] Roof casting and textures
 - [ ] DDA raycaster
-    - [ ] Distance shadows
 - [ ] *future stuff...*
 
 ## Feedback

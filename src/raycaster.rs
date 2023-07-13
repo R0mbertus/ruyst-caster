@@ -15,10 +15,10 @@ fn get_distance(x: f64, y: f64) -> f64 {
     ((x * x) + (y * y)).sqrt()
 }
 
-pub fn raycaster(x: f64, y: f64, player_angle: f64) -> [f64; RAYS_AMOUNT as usize] {
+pub fn raycaster(x: f64, y: f64, player_angle: f64) -> [f64; RAYS_AMOUNT] {
     let mut ray_angle: f64 = player_angle - HALF_FOV;
 
-    let mut rays = [0.0; RAYS_AMOUNT as usize];
+    let mut rays = [0.0; RAYS_AMOUNT];
 
     for (_ray, distance) in rays.iter_mut().enumerate() {
         let mut ray_x: f64 = x;
@@ -32,7 +32,8 @@ pub fn raycaster(x: f64, y: f64, player_angle: f64) -> [f64; RAYS_AMOUNT as usiz
             ray_y += ray_sin;
         }
 
-        *distance = degree_to_radians(ray_angle - player_angle).cos() * get_distance(x - ray_x, y - ray_y);
+        *distance =
+            degree_to_radians(ray_angle - player_angle).cos() * get_distance(x - ray_x, y - ray_y);
 
         ray_angle += RAY_ANGLE_INCREMENT;
     }

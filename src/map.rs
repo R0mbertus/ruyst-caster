@@ -39,8 +39,8 @@ pub fn color_distance(color: [f32; 4], distance: f32) -> [f32; 4] {
     }
 
     let mut color_dist = color;
-    for i in 0..3 {
-        color_dist[i] /= distance - SHADOW_DISTANCE;
+    for color_value in color_dist.iter_mut().take(3) {
+        *color_value /= distance - SHADOW_DISTANCE;
     }
     color_dist
 }

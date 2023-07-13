@@ -58,15 +58,10 @@ impl App {
 
             // Draw sky
             Rectangle::new(SKY_BLUE).draw(
-                [
-                    0.0,
-                    0.0,
-                    WINDOW_WIDTH,
-                    HALF_WINDOW_HEIGHT
-                ],
+                [0.0, 0.0, WINDOW_WIDTH, HALF_WINDOW_HEIGHT],
                 &DrawState::default(),
                 c.transform,
-                gl
+                gl,
             );
 
             for (ray, distance) in self.gamestate.get_view().iter().enumerate() {
@@ -122,11 +117,12 @@ fn main() {
     let opengl = OpenGL::V3_2;
 
     // Create a Glutin window.
-    let mut window: Window = WindowSettings::new("ruyst-caster", [WINDOW_WIDTH - 20.0, WINDOW_HEIGHT])
-        .graphics_api(opengl)
-        .exit_on_esc(true)
-        .build()
-        .unwrap();
+    let mut window: Window =
+        WindowSettings::new("ruyst-caster", [WINDOW_WIDTH - 20.0, WINDOW_HEIGHT])
+            .graphics_api(opengl)
+            .exit_on_esc(true)
+            .build()
+            .unwrap();
 
     println!("({},{})", WINDOW_WIDTH, WINDOW_HEIGHT);
 

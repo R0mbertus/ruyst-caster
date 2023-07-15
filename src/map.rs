@@ -1,3 +1,5 @@
+use bevy::prelude::*;
+
 pub const WIDTH: usize = 16;
 pub const HEIGHT: usize = 16;
 const SHADOW_DISTANCE: f32 = 4.0;
@@ -32,15 +34,15 @@ pub fn wall_point(x: f32, y: f32) -> bool {
     }
 }
 
-pub fn color_distance(color: [f32; 4], distance: f32) -> [f32; 4] {
+pub fn color_distance(color: Color, distance: f32) -> Color {
     // If distance not far enough just keep color
     if distance < SHADOW_DISTANCE {
         return color;
     }
 
-    let mut color_dist = color;
-    for color_value in color_dist.iter_mut().take(3) {
-        *color_value /= distance - SHADOW_DISTANCE;
-    }
-    color_dist
+    return Color::rgb(
+        color.r() / (distance - SHADOW_DISTANCE),
+        color.g() / (distance - SHADOW_DISTANCE),
+        color.b() / (distance - SHADOW_DISTANCE),
+    );
 }

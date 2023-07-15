@@ -6,8 +6,6 @@ use crate::gamestate::*;
 use crate::map::*;
 use crate::raycaster::RAYS_AMOUNT;
 use bevy::prelude::*;
-use bevy::render::render_resource::Texture;
-use bevy::asset::Handle;
 
 // constants
 const WINDOW_WIDTH: f32 = 800.0;
@@ -16,18 +14,11 @@ const HALF_WINDOW_WIDTH: f32 = WINDOW_WIDTH / 2.0;
 const HALF_WINDOW_HEIGHT: f32 = WINDOW_HEIGHT / 2.0;
 const WINDOW: (f32, f32) = (WINDOW_WIDTH, WINDOW_HEIGHT);
 const PRECISION: f32 = 64.0;
-const LINE_WIDTH: f32 = WINDOW_WIDTH / RAYS_AMOUNT as f32;
-const SKY_BLUE: [f32; 4] = [0.40, 0.7, 0.95, 1.0];
-
-#[derive(Component, Resource)]
-struct TextureHandles {
-    wall: Handle<Image>,
-}
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins.set(WindowPlugin {
-            primary_window: Some(Window { 
+            primary_window: Some(Window {
                 title: "Ruyst-caster".to_string(),
                 resizable: false,
                 resolution: WINDOW.into(),
@@ -37,51 +28,35 @@ fn main() {
         }))
         .insert_resource(Gamestate::new())
         .add_systems(Startup, setup)
-        .add_systems(Startup, load_sprites)
-        .add_systems(Update, keyboard_input_system)
+        .add_systems(Update, (keyboard_input_system, update))
         .run();
 }
 
-fn setup(
-    mut commands: Commands, 
-    asset_server: Res<AssetServer>
-) {
+fn setup(mut commands: Commands) {
     // spawn camera
     commands.spawn(Camera2dBundle::default());
 
-    // Get initial gamestate
-    commands.spawn(Gamestate::default());
+    let sprite_width = WINDOW_WIDTH / RAYS_AMOUNT as f32;
 
-    // Store texture handles
-    commands.insert_resource(TextureHandles {
-        wall: asset_server.load("wall.png")
-    });    
-}
-
-fn load_sprites(
-    mut commands: Commands, 
-    texture_handles: Res<TextureHandles>
-) {
-    commands.spawn(SpriteBundle {
-        sprite: Sprite {
-            //color: Color::rgb(0.25, 0.25, 0.75),
-            custom_size: Some(Vec2::new(50.0, 100.0)),
-            rect: Some(Rect {
-                min: Vec2::new(0.0, 0.0), 
-                max: Vec2::new(1.0, 15.0)
-            }),
+    // spawn wall
+    for x in 0..RAYS_AMOUNT {
+        commands.spawn(SpriteBundle {
+            sprite: Sprite {
+                custom_size: Some(Vec2::new(sprite_width, HALF_WINDOW_HEIGHT)),
+                color: Color::rgb(1.0, 0.0, 0.0),
+                ..default()
+            },
+            transform: Transform::from_translation(Vec3::new(
+                -HALF_WINDOW_WIDTH + x as f32,
+                0.,
+                0.,
+            )),
             ..default()
-        },
-        texture: texture_handles.wall.clone(),
-        transform: Transform::from_translation(Vec3::new(-50., 0., 0.)),
-        ..default()
-    });
+        });
+    }
 }
 
-fn keyboard_input_system(
-    input: Res<Input<KeyCode>>,
-    mut gamestate: ResMut<Gamestate>
-) {
+fn keyboard_input_system(input: Res<Input<KeyCode>>, mut gamestate: ResMut<Gamestate>) {
     // handle up down
     if input.pressed(KeyCode::W) {
         gamestate.up_down = UpDown::Up;
@@ -105,8 +80,18 @@ fn keyboard_input_system(
     }
 }
 
-fn render_scene() {
+fn update(mut gamestate: ResMut<Gamestate>, mut query: Query<(&mut Sprite, &Transform)>) {
+    gamestate.update();
 
+    let wall_distances = gamestate.get_view();
+
+    for (mut sprite, transform) in query.iter_mut() {
+        let x = (transform.translation.x + HALF_WINDOW_WIDTH) as usize;
+
+        sprite.custom_size.as_mut().unwrap().y = HALF_WINDOW_HEIGHT / wall_distances[x] as f32;
+
+        sprite.color = color_distance(Color::RED, wall_distances[x]);
+    }
 }
 
 // pub struct App {

@@ -1,6 +1,6 @@
 pub const WIDTH: usize = 16;
 pub const HEIGHT: usize = 16;
-const SHADOW_DISTANCE: f32 = 6.0;
+const SHADOW_DISTANCE: f32 = 4.0;
 
 // constant map for now
 const MAP: [[u8; WIDTH]; HEIGHT] = [
@@ -22,7 +22,7 @@ const MAP: [[u8; WIDTH]; HEIGHT] = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 ];
 
-pub fn wall_point(x: f64, y: f64) -> bool {
+pub fn wall_point(x: f32, y: f32) -> bool {
     match MAP.get(y as usize) {
         Some(row) => match row.get(x as usize) {
             Some(wall) => *wall != 0,

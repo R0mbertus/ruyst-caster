@@ -1,26 +1,29 @@
+use bevy::prelude::{Component, Resource};
+
 use crate::{map::*, raycaster::*, WINDOW_WIDTH};
 
-const STEP_SIZE: f64 = 0.035;
-const ROTATION: f64 = 1.5;
+const STEP_SIZE: f32 = 0.035;
+const ROTATION: f32 = 1.5;
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 pub enum UpDown {
     Up,
     Down,
     None,
 }
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 pub enum LeftRight {
     Left,
     Right,
     None,
 }
 
+#[derive(Component, Debug, Resource)]
 pub struct Gamestate {
-    x: f64,
-    y: f64,
-    angle: f64,
+    x: f32,
+    y: f32,
+    angle: f32,
     pub up_down: UpDown,
     pub left_right: LeftRight,
 }
@@ -36,8 +39,7 @@ impl Gamestate {
         }
     }
 
-    // smell, I know.
-    pub fn get_view(&mut self) -> [f64; WINDOW_WIDTH as usize] {
+    pub fn get_view(&mut self) -> [f32; WINDOW_WIDTH as usize] {
         raycaster(self.x, self.y, self.angle)
     }
 
@@ -69,5 +71,11 @@ impl Gamestate {
         if wall_point(self.x, self.y) {
             (self.x, self.y) = previous_position
         }
+    }
+}
+
+impl Default for Gamestate {
+    fn default() -> Self {
+        Gamestate::new()
     }
 }

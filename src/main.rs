@@ -6,6 +6,7 @@ use crate::gamestate::*;
 use crate::map::*;
 use crate::raycaster::RAYS_AMOUNT;
 use bevy::prelude::*;
+use bevy::asset::LoadState;
 
 // constants
 const WINDOW_WIDTH: f32 = 800.0;
@@ -14,6 +15,10 @@ const HALF_WINDOW_WIDTH: f32 = WINDOW_WIDTH / 2.0;
 const HALF_WINDOW_HEIGHT: f32 = WINDOW_HEIGHT / 2.0;
 const WINDOW: (f32, f32) = (WINDOW_WIDTH, WINDOW_HEIGHT);
 const PRECISION: f32 = 64.0;
+const SPRITE_WIDTH: f32 = WINDOW_WIDTH / RAYS_AMOUNT as f32;
+
+#[derive(Resource)]
+struct AssetsLoading(Vec<HandleUntyped>);
 
 fn main() {
     App::new()
@@ -27,25 +32,43 @@ fn main() {
             ..default()
         }))
         .insert_resource(Gamestate::new())
-        .add_systems(Startup, setup)
+        .add_systems(Startup, (setup, load_sprites))
         .add_systems(Update, (keyboard_input_system, update))
         .run();
 }
 
-fn setup(mut commands: Commands) {
+fn setup(mut commands: Commands, asset_server: Res<AssetServer>, mut loading: ResMut<AssetsLoading>) {
     // spawn camera
     commands.spawn(Camera2dBundle::default());
 
-    let sprite_width = WINDOW_WIDTH / RAYS_AMOUNT as f32;
+    let wall_handle: Handle<Image> = asset_server.load("wall.png");
+
+    loading.0.push(wall_handle.clone_untyped());
+}
+
+fn load_sprites(mut commands: Commands, asset_server: Res<AssetServer>, loading: Res<AssetsLoading>) {
+    match asset_server.get_group_load_state(loading.0.iter().map(|h| h.id())) {
+        LoadState::Failed => {
+            panic!("[ERROR]: Failed to load asset");
+        }
+        LoadState::Loaded => {
+
+        }
+        _ => {}
+    }
 
     // spawn wall
     for x in 0..RAYS_AMOUNT {
         commands.spawn(SpriteBundle {
             sprite: Sprite {
                 custom_size: Some(Vec2::new(sprite_width, HALF_WINDOW_HEIGHT)),
-                color: Color::rgb(1.0, 0.0, 0.0),
+                rect: Some(Rect {
+                    min: Vec2::new(0., 0.),
+                    max: Vec2::new(1., 15.0),
+                }),
                 ..default()
             },
+            texture: wall_handle.clone(),
             transform: Transform::from_translation(Vec3::new(
                 -HALF_WINDOW_WIDTH + x as f32,
                 0.,
@@ -80,111 +103,18 @@ fn keyboard_input_system(input: Res<Input<KeyCode>>, mut gamestate: ResMut<Games
     }
 }
 
-fn update(mut gamestate: ResMut<Gamestate>, mut query: Query<(&mut Sprite, &Transform)>) {
+fn update(mut gamestate: ResMut<Gamestate>, mut query: Query<&mut Sprite>) {
     gamestate.update();
 
-    let wall_distances = gamestate.get_view();
+    let rays = gamestate.get_view();
 
-    for (mut sprite, transform) in query.iter_mut() {
-        let x = (transform.translation.x + HALF_WINDOW_WIDTH) as usize;
+    for (i, mut sprite) in query.iter_mut().enumerate() {
+        sprite.custom_size.as_mut().unwrap().y = HALF_WINDOW_HEIGHT / rays[i].distance as f32;
 
-        sprite.custom_size.as_mut().unwrap().y = HALF_WINDOW_HEIGHT / wall_distances[x] as f32;
+        // let sprite_rect = sprite.rect.as_mut().unwrap();
+        // sprite_rect.min.x = rays[i].get_texture_x(16.0);
+        // sprite_rect.max.y = sprite_rect.min.x + 1.;
 
-        sprite.color = color_distance(Color::RED, wall_distances[x]);
+        //sprite.color = color_distance(Color::RED, rays[i].distance);
     }
 }
-
-// pub struct App {
-//     gl: GlGraphics, // OpenGL drawing backend.
-//     gamestate: Gamestate,
-//     wall: Texture,  // OpenGL texture
-// }
-
-// impl Default for App {
-//     fn default() -> Self {
-//         Self::new()
-//     }
-// }
-
-// impl App {
-//     pub fn new() -> App {
-//         App {
-//             gl: GlGraphics::new(OpenGL::V3_2),
-//             gamestate: Gamestate::new(),
-//             wall: Texture::from_path(
-//                 "assets/wall.png",
-//                 &TextureSettings::new()
-//             ).expect("[ERROR]: Failed to load wall texture")
-//         }
-//     }
-
-//     fn render(&mut self, args: &RenderArgs) {
-//         use graphics::*;
-
-//         self.gl.draw(args.viewport(), |c, gl| {
-//             // Clear the screen.
-//             clear(GREEN, gl);
-
-//             // Draw sky
-//             Rectangle::new(SKY_BLUE).draw(
-//                 [0.0, 0.0, WINDOW_WIDTH, HALF_WINDOW_HEIGHT],
-//                 &DrawState::default(),
-//                 c.transform,
-//                 gl,
-//             );
-
-//             for (ray, distance) in self.gamestate.get_view().iter().enumerate() {
-//                 Line::new(color_distance(RED, *distance as f32), LINE_WIDTH).draw(
-//                     [
-//                         ray as f32,
-//                         HALF_WINDOW_HEIGHT - (HALF_WINDOW_HEIGHT / distance) / 2.0,
-//                         ray as f32,
-//                         HALF_WINDOW_HEIGHT + (HALF_WINDOW_HEIGHT / distance) / 2.0,
-//                     ],
-//                     &DrawState::default(),
-//                     c.transform,
-//                     gl,
-//                 );
-//             }
-//         });
-//     }
-
-//     fn update(&mut self, _args: &UpdateArgs) {
-//         self.gamestate.update();
-//     }
-// }
-
-// fn main() {
-//     // Change this to OpenGL::V2_1 if not working.
-//     let opengl = OpenGL::V3_2;
-
-//     // Create a Glutin window.
-//     let mut window: Window =
-//         WindowSettings::new("ruyst-caster", [WINDOW_WIDTH - 20.0, WINDOW_HEIGHT])
-//             .graphics_api(opengl)
-//             .exit_on_esc(true)
-//             .build()
-//             .unwrap();
-
-//     // Create a new game and run it.
-//     let mut app = App::new();
-
-//     let mut events = Events::new(EventSettings::new().max_fps(30));
-//     while let Some(e) = events.next(&mut window) {
-//         if let Some(args) = e.render_args() {
-//             app.render(&args);
-//         }
-
-//         if let Some(Button::Keyboard(key)) = e.press_args() {
-//             app.handle_key_press(key);
-//         }
-
-//         if let Some(Button::Keyboard(key)) = e.release_args() {
-//             app.handle_key_release(key);
-//         }
-
-//         if let Some(args) = e.update_args() {
-//             app.update(&args);
-//         }
-//     }
-// }

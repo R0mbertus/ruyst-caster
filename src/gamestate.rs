@@ -39,7 +39,7 @@ impl Gamestate {
         }
     }
 
-    pub fn get_view(&mut self) -> [f32; WINDOW_WIDTH as usize] {
+    pub fn get_view(&mut self) -> [Ray; WINDOW_WIDTH as usize] {
         raycaster(self.x, self.y, self.angle)
     }
 

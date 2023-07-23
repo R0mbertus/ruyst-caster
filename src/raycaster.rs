@@ -3,6 +3,7 @@ use std::f32::consts::PI;
 use crate::{map::wall_point, PRECISION, WINDOW_WIDTH};
 
 pub const RAYS_AMOUNT: usize = WINDOW_WIDTH as usize;
+pub const RAY_MAX: usize = 2_usize.pow(10);
 const FOV: f32 = 60.0;
 const HALF_FOV: f32 = FOV / 2.0;
 const RAY_ANGLE_INCREMENT: f32 = FOV / RAYS_AMOUNT as f32;
@@ -40,7 +41,10 @@ pub fn raycaster(x: f32, y: f32, player_angle: f32) -> [Ray; RAYS_AMOUNT] {
         let ray_cos = degree_to_radians(ray_angle).cos() / PRECISION;
         let ray_sin = degree_to_radians(ray_angle).sin() / PRECISION;
 
-        while !wall_point(ray_x, ray_y) {
+        for _i in 0..RAY_MAX {
+            if wall_point(ray_x, ray_y) {
+                break;
+            }
             ray_x += ray_cos;
             ray_y += ray_sin;
         }
@@ -48,7 +52,8 @@ pub fn raycaster(x: f32, y: f32, player_angle: f32) -> [Ray; RAYS_AMOUNT] {
         *ray = Ray {
             x: ray_x,
             y: ray_y,
-            distance: degree_to_radians(ray_angle - player_angle).cos() * get_distance(x - ray_x, y - ray_y),
+            distance: degree_to_radians(ray_angle - player_angle).cos()
+                * get_distance(x - ray_x, y - ray_y),
         };
 
         ray_angle += RAY_ANGLE_INCREMENT;

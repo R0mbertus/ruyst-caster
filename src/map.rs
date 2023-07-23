@@ -35,14 +35,11 @@ pub fn wall_point(x: f32, y: f32) -> bool {
 }
 
 pub fn color_distance(color: Color, distance: f32) -> Color {
+    let light_color = color.with_a(1.);
     // If distance not far enough just keep color
     if distance < SHADOW_DISTANCE {
-        return color;
+        return light_color;
     }
 
-    return Color::rgb(
-        color.r() / (distance - SHADOW_DISTANCE),
-        color.g() / (distance - SHADOW_DISTANCE),
-        color.b() / (distance - SHADOW_DISTANCE),
-    );
+    light_color.with_a(1. / (distance - SHADOW_DISTANCE))
 }

@@ -15,6 +15,7 @@ const HALF_WINDOW_HEIGHT: f32 = WINDOW_HEIGHT / 2.0;
 const WINDOW: (f32, f32) = (WINDOW_WIDTH, WINDOW_HEIGHT);
 const PRECISION: f32 = 64.0;
 const SPRITE_WIDTH: f32 = WINDOW_WIDTH / RAYS_AMOUNT as f32;
+const WALL: (f32, f32) = (16., 16.);
 
 fn main() {
     App::new()
@@ -53,8 +54,8 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>, images: Res<Ass
             sprite: Sprite {
                 custom_size: Some(Vec2::new(SPRITE_WIDTH, HALF_WINDOW_HEIGHT)),
                 rect: Some(Rect {
-                    min: Vec2::new((x % 16) as f32 / 15., 0.),
-                    max: Vec2::new(((x + 1) % 16) as f32 / 15., 15.0),
+                    min: Vec2::new(0., 0.),
+                    max: Vec2::new(1., WALL.1 - 1.),
                 }),
                 ..default()
             },
@@ -102,7 +103,7 @@ fn update(mut gamestate: ResMut<Gamestate>, mut query: Query<&mut Sprite>) {
         sprite.custom_size.as_mut().unwrap().y = HALF_WINDOW_HEIGHT / rays[i].distance;
 
         let sprite_rect = sprite.rect.as_mut().unwrap();
-        sprite_rect.min.x = rays[i].get_texture_x(16.0);
+        sprite_rect.min.x = rays[i].get_texture_x(WALL.0);
         sprite_rect.max.x = sprite_rect.min.x + 1.;
 
         sprite.color = color_distance(sprite.color, rays[i].distance)

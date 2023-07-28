@@ -22,7 +22,7 @@ subject to change.
     - [x] Fix fisheye problem
     - [x] Floor and sky colors
     - [x] Shadows for distance
-- [ ] Wall textures
+- [x] Wall textures
     - [ ] Floor casting and textures
     - [ ] Roof casting and textures
 - [ ] DDA raycaster

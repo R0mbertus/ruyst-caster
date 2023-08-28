@@ -1,6 +1,6 @@
 # ruyst-caster
-Various raycasters made in Rust using bevy. The basic idea is for it to be
-a simple wolfenstein looking maze, with some other basic features.
+A Ray-caster made in Rust using bevy. The basic idea is for it to be
+a looking maze, with some other basic features.
 
 ## Installation
 Thanks to the cargo tool, it should be as simple as installing rust and then
